@@ -1,0 +1,42 @@
+---
+title: "Melbourne Housing Data Exploration"
+author: "Lasya Harini Banka"
+format:
+  html:
+    code-fold: true
+---
+
+## Introduction
+
+This project explores housing data from Melbourne, Australia.
+The goal is to understand how property characteristics such as
+type, number of rooms, and location relate to housing prices.
+
+## Load Packages and Data
+
+```{r}
+library(tidyverse)
+
+housing <- read_csv("Melbourne_housing_FULL.csv",
+                    show_col_types = FALSE)
+```
+
+## Initial Data Exploration
+
+```{r}
+dim(housing)
+names(housing)
+head(housing)
+```
+
+## Check Missing Values
+
+```{r}
+colSums(is.na(housing))
+```
+
+## Check Parsing Issues
+
+```{r}
+problems(housing)
+```
