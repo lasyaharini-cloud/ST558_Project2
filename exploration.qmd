@@ -1,3 +1,4 @@
+
 ---
 title: "Melbourne Housing Data Exploration"
 author: "Lasya Harini Banka"
@@ -8,35 +9,109 @@ format:
 
 ## Introduction
 
-This project explores housing data from Melbourne, Australia.
-The goal is to understand how property characteristics such as
-type, number of rooms, and location relate to housing prices.
+My project explores the Melbourne Housing dataset. I will look at housing prices and how they vary based on property type, rooms, and location.
 
-## Load Packages and Data
+## Load Data
 
 ```{r}
 library(tidyverse)
 
+# Load data
 housing <- read_csv("Melbourne_housing_FULL.csv",
+                    na = c("", "NA", "#N/A"),
                     show_col_types = FALSE)
 ```
 
-## Initial Data Exploration
+## Explore Data
 
 ```{r}
+# Check data
 dim(housing)
 names(housing)
 head(housing)
 ```
 
-## Check Missing Values
+## Missing Values
 
 ```{r}
+# Check missing values
 colSums(is.na(housing))
 ```
 
-## Check Parsing Issues
+Some columns have missing values, so I will keep them for now and handle them when needed.
+
+## Parsing Issues
 
 ```{r}
+# Check reading errors
 problems(housing)
+```
+
+## Clean Data
+
+```{r}
+# Keep rows with type and region
+housing_clean <- housing |>
+  filter(!is.na(Type), !is.na(Regionname))
+
+# Check rows and columns
+dim(housing_clean)
+```
+
+## Save Data
+
+```{r}
+# Save for Shiny app
+saveRDS(housing_clean, "housing_clean.rds")
+```
+
+## Categorical Summaries
+
+I looked at the number of properties by type and region.
+
+### One-Way Tables
+
+```{r}
+# Property types
+table(housing_clean$Type)
+
+# Regions
+table(housing_clean$Regionname)
+```
+
+### Two-Way Table
+
+I compared property types across regions.
+
+```{r}
+# Type by region
+table(housing_clean$Type, housing_clean$Regionname)
+```
+
+## Numerical Summaries
+
+I compared housing prices across property types.
+
+```{r}
+# Price summary by type
+housing_clean |>
+  group_by(Type) |>
+  summarise(
+    Mean = mean(Price, na.rm = TRUE),
+    Median = median(Price, na.rm = TRUE),
+    SD = sd(Price, na.rm = TRUE)
+  )
+```
+
+I also compared the number of rooms across regions.
+
+```{r}
+# Room summary by region
+housing_clean |>
+  group_by(Regionname) |>
+  summarise(
+    Mean = mean(Rooms, na.rm = TRUE),
+    Median = median(Rooms, na.rm = TRUE),
+    SD = sd(Rooms, na.rm = TRUE)
+  )
 ```

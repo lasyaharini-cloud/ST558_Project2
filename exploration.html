@@ -113,10 +113,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>This project explores housing data from Melbourne, Australia. The goal is to understand how property characteristics such as type, number of rooms, and location relate to housing prices.</p>
+<p>My project explores the Melbourne Housing dataset. I will look at housing prices and how they vary based on property type, rooms, and location.</p>
 </section>
-<section id="load-packages-and-data" class="level2">
-<h2 class="anchored" data-anchor-id="load-packages-and-data">Load Packages and Data</h2>
+<section id="load-data" class="level2">
+<h2 class="anchored" data-anchor-id="load-data">Load Data</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -136,30 +136,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>housing <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"Melbourne_housing_FULL.csv"</span>,</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>housing <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"Melbourne_housing_FULL.csv"</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">na =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"NA"</span>, <span class="st">"#N/A"</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: One or more parsing issues, call `problems()` on your data frame for details,
-e.g.:
-  dat &lt;- vroom(...)
-  problems(dat)</code></pre>
-</div>
 </div>
 </section>
-<section id="initial-data-exploration" class="level2">
-<h2 class="anchored" data-anchor-id="initial-data-exploration">Initial Data Exploration</h2>
+<section id="explore-data" class="level2">
+<h2 class="anchored" data-anchor-id="explore-data">Explore Data</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(housing)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(housing)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 34857    21</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(housing)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(housing)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "Suburb"        "Address"       "Rooms"         "Type"         
@@ -171,7 +168,7 @@ e.g.:
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(housing)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(housing)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 21
@@ -189,12 +186,13 @@ e.g.:
 </div>
 </div>
 </section>
-<section id="check-missing-values" class="level2">
-<h2 class="anchored" data-anchor-id="check-missing-values">Check Missing Values</h2>
+<section id="missing-values" class="level2">
+<h2 class="anchored" data-anchor-id="missing-values">Missing Values</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(housing))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check missing values</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(housing))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>       Suburb       Address         Rooms          Type         Price 
@@ -204,28 +202,166 @@ e.g.:
      Bedroom2      Bathroom           Car      Landsize  BuildingArea 
          8217          8226          8728         11810         21115 
     YearBuilt   CouncilArea     Lattitude    Longtitude    Regionname 
-        19306             0          7976          7976             0 
+        19306             3          7976          7976             3 
 Propertycount 
             3 </code></pre>
 </div>
 </div>
+<p>Some columns have missing values, so I will keep them for now and handle them when needed.</p>
 </section>
-<section id="check-parsing-issues" class="level2">
-<h2 class="anchored" data-anchor-id="check-parsing-issues">Check Parsing Issues</h2>
+<section id="parsing-issues" class="level2">
+<h2 class="anchored" data-anchor-id="parsing-issues">Parsing Issues</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">problems</span>(housing)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check reading errors</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">problems</span>(housing)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 5 × 5
-    row   col expected actual file                                              
-  &lt;int&gt; &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;                                             
-1 18525    21 a double #N/A   /Users/lasya/Desktop/Masters/SEM 3/ST558/Project …
-2 26890    21 a double #N/A   /Users/lasya/Desktop/Masters/SEM 3/ST558/Project …
-3 29485     9 a double #N/A   /Users/lasya/Desktop/Masters/SEM 3/ST558/Project …
-4 29485    10 a double #N/A   /Users/lasya/Desktop/Masters/SEM 3/ST558/Project …
-5 29485    21 a double #N/A   /Users/lasya/Desktop/Masters/SEM 3/ST558/Project …</code></pre>
+<pre><code># A tibble: 0 × 5
+# ℹ 5 variables: row &lt;int&gt;, col &lt;int&gt;, expected &lt;chr&gt;, actual &lt;chr&gt;, file &lt;chr&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="clean-data" class="level2">
+<h2 class="anchored" data-anchor-id="clean-data">Clean Data</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep rows with type and region</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>housing_clean <span class="ot">&lt;-</span> housing <span class="sc">|&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Type), <span class="sc">!</span><span class="fu">is.na</span>(Regionname))</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Check rows and columns</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(housing_clean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 34854    21</code></pre>
+</div>
+</div>
+</section>
+<section id="save-data" class="level2">
+<h2 class="anchored" data-anchor-id="save-data">Save Data</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save for Shiny app</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(housing_clean, <span class="st">"housing_clean.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="categorical-summaries" class="level2">
+<h2 class="anchored" data-anchor-id="categorical-summaries">Categorical Summaries</h2>
+<p>I looked at the number of properties by type and region.</p>
+<section id="one-way-tables" class="level3">
+<h3 class="anchored" data-anchor-id="one-way-tables">One-Way Tables</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Property types</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(housing_clean<span class="sc">$</span>Type)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    h     t     u 
+23978  3580  7296 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Regions</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(housing_clean<span class="sc">$</span>Regionname)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+      Eastern Metropolitan           Eastern Victoria 
+                      4377                        228 
+     Northern Metropolitan          Northern Victoria 
+                      9557                        203 
+South-Eastern Metropolitan      Southern Metropolitan 
+                      1739                      11836 
+      Western Metropolitan           Western Victoria 
+                      6799                        115 </code></pre>
+</div>
+</div>
+</section>
+<section id="two-way-table" class="level3">
+<h3 class="anchored" data-anchor-id="two-way-table">Two-Way Table</h3>
+<p>I compared property types across regions.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Type by region</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(housing_clean<span class="sc">$</span>Type, housing_clean<span class="sc">$</span>Regionname)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   
+    Eastern Metropolitan Eastern Victoria Northern Metropolitan
+  h                 3438              216                  6489
+  t                  391                5                  1035
+  u                  548                7                  2033
+   
+    Northern Victoria South-Eastern Metropolitan Southern Metropolitan
+  h               199                       1356                  6968
+  t                 1                        162                  1332
+  u                 3                        221                  3536
+   
+    Western Metropolitan Western Victoria
+  h                 5199              113
+  t                  654                0
+  u                  946                2</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="numerical-summaries" class="level2">
+<h2 class="anchored" data-anchor-id="numerical-summaries">Numerical Summaries</h2>
+<p>I compared housing prices across property types.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Price summary by type</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>housing_clean <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Type) <span class="sc">|&gt;</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mean =</span> <span class="fu">mean</span>(Price, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Median =</span> <span class="fu">median</span>(Price, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">SD =</span> <span class="fu">sd</span>(Price, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  Type      Mean  Median      SD
+  &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+1 h     1203771. 1015000 687958.
+2 t      931077.  850000 382869.
+3 u      627930.  580000 296703.</code></pre>
+</div>
+</div>
+<p>I also compared the number of rooms across regions.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Room summary by region</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>housing_clean <span class="sc">|&gt;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Regionname) <span class="sc">|&gt;</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mean =</span> <span class="fu">mean</span>(Rooms, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Median =</span> <span class="fu">median</span>(Rooms, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">SD =</span> <span class="fu">sd</span>(Rooms, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 4
+  Regionname                  Mean Median    SD
+  &lt;chr&gt;                      &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
+1 Eastern Metropolitan        3.40      3 0.918
+2 Eastern Victoria            3.54      3 0.782
+3 Northern Metropolitan       2.82      3 0.909
+4 Northern Victoria           3.51      3 0.798
+5 South-Eastern Metropolitan  3.28      3 0.858
+6 Southern Metropolitan       2.97      3 1.06 
+7 Western Metropolitan        3.09      3 0.855
+8 Western Victoria            3.30      3 1.05 </code></pre>
 </div>
 </div>
 </section>
