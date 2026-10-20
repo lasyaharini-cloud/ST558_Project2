@@ -125,7 +125,73 @@ ui <- fluidPage(
 )
 
 # Server
+
+# Server
 server <- function(input, output, session) {
+  
+  # Update first slider
+  observeEvent(input$num1, {
+    values <- housing[[input$num1]]
+    values <- values[!is.na(values)]
+    
+    updateSliderInput(
+      session, "range1",
+      label = paste(input$num1, "Range"),
+      min = min(values),
+      max = max(values),
+      value = c(min(values), max(values))
+    )
+  })
+  
+  # Update second slider
+  observeEvent(input$num2, {
+    values <- housing[[input$num2]]
+    values <- values[!is.na(values)]
+    
+    updateSliderInput(
+      session, "range2",
+      label = paste(input$num2, "Range"),
+      min = min(values),
+      max = max(values),
+      value = c(min(values), max(values))
+    )
+  })
+  
+  # Apply filters when button is clicked
+  filtered_data <- eventReactive(input$apply, {
+    
+    data <- housing
+    
+    # Filter property type
+    if (input$type != "All") {
+      data <- data |>
+        filter(Type == input$type)
+    }
+    
+    # Filter region
+    if (input$region != "All") {
+      data <- data |>
+        filter(Regionname == input$region)
+    }
+    
+    # Filter first numeric variable
+    data <- data |>
+      filter(
+        !is.na(.data[[input$num1]]),
+        .data[[input$num1]] >= input$range1[1],
+        .data[[input$num1]] <= input$range1[2]
+      )
+    
+    # Filter second numeric variable
+    data <- data |>
+      filter(
+        !is.na(.data[[input$num2]]),
+        .data[[input$num2]] >= input$range2[1],
+        .data[[input$num2]] <= input$range2[2]
+      )
+    
+    data
+  }, ignoreNULL = FALSE)
   
 }
 
