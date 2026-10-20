@@ -163,3 +163,75 @@ ggplot(housing_clean |> filter(!is.na(Price)),
        y = "Count") +
   theme_minimal()
 ```
+
+
+### Plot 4: Housing Prices by Type
+
+This plot compares housing prices for different property types.
+
+```{r}
+# Boxplot
+ggplot(housing_clean |> filter(!is.na(Price)),
+       aes(x = Type, y = Price, fill = Type)) +
+  geom_boxplot() +
+  labs(title = "Housing Prices by Property Type",
+       x = "Property Type",
+       y = "Price") +
+  theme_minimal()
+```
+
+### Plot 5: Rooms and Housing Prices
+
+This plot shows how the number of rooms relates to housing prices.
+
+```{r}
+# Scatterplot
+ggplot(housing_clean |> filter(!is.na(Price)),
+       aes(x = Rooms, y = Price, color = Type)) +
+  geom_point(alpha = 0.3) +
+  labs(title = "Rooms vs Housing Prices",
+       x = "Number of Rooms",
+       y = "Price",
+       color = "Property Type") +
+  theme_minimal()
+```
+
+### Plot 6: Distance and Housing Prices
+
+This plot compares distance from the city center and housing prices for different property types.
+
+```{r}
+# Faceted scatterplot
+ggplot(housing_clean |>
+         filter(!is.na(Price), !is.na(Distance)),
+       aes(x = Distance, y = Price, color = Regionname)) +
+  geom_point(alpha = 0.3) +
+  facet_wrap(~Type) +
+  labs(title = "Distance vs Housing Prices",
+       x = "Distance from City Center (km)",
+       y = "Price",
+       color = "Region") +
+  theme_minimal()
+```
+
+### Plot 7: Average Housing Prices by Region and Type
+
+This heatmap shows the average housing price for each property type across regions.
+
+```{r}
+# Calculate average prices
+avg_prices <- housing_clean |>
+  group_by(Regionname, Type) |>
+  summarise(AvgPrice = mean(Price, na.rm = TRUE),
+            .groups = "drop")
+
+# Heatmap
+ggplot(avg_prices, aes(x = Type, y = Regionname, fill = AvgPrice)) +
+  geom_tile(color = "white") +
+  labs(title = "Average Housing Prices by Region and Type",
+       x = "Property Type",
+       y = "Region",
+       fill = "Average Price") +
+  theme_minimal()
+```
+
