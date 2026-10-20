@@ -115,3 +115,51 @@ housing_clean |>
     SD = sd(Rooms, na.rm = TRUE)
   )
 ```
+
+## Graphical Summaries
+
+### Plot 1: Property Types
+
+This plot shows the number of properties for each type.
+
+```{r}
+# Bar chart
+ggplot(housing_clean, aes(x = Type)) +
+  geom_bar(fill = "steelblue") +
+  labs(title = "Number of Properties by Type",
+       x = "Property Type",
+       y = "Count") +
+  theme_minimal()
+```
+
+### Plot 2: Property Types by Region
+
+This plot compares property types across different regions.
+
+```{r}
+# Grouped bar chart
+ggplot(housing_clean, aes(x = Regionname, fill = Type)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Property Types by Region",
+       x = "Region",
+       y = "Count",
+       fill = "Property Type") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Plot 3: Housing Prices by Property Type
+
+This plot shows how housing prices are distributed for each property type.
+
+```{r}
+# Histogram
+ggplot(housing_clean |> filter(!is.na(Price)),
+       aes(x = Price, fill = Type)) +
+  geom_histogram(bins = 30) +
+  facet_wrap(~Type) +
+  labs(title = "Housing Prices by Property Type",
+       x = "Price",
+       y = "Count") +
+  theme_minimal()
+```
