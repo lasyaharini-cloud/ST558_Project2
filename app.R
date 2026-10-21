@@ -6,6 +6,9 @@ library(DT)
 # Load data
 housing <- readRDS("housing_clean.rds")
 
+# Numeric variables
+num_vars <- c("Price", "Rooms", "Distance", "Landsize")
+
 # App layout
 ui <- fluidPage(
   
@@ -37,34 +40,34 @@ ui <- fluidPage(
       selectInput(
         "num1",
         "First Numeric Variable",
-        choices = c("Price", "Rooms", "Distance", "Landsize"),
+        choices = num_vars,
         selected = "Price"
       ),
       
       # First range
       sliderInput(
         "range1",
-        "First Range",
-        min = 0,
-        max = 10000000,
-        value = c(0, 10000000)
+        "Price Range",
+        min = min(housing$Price, na.rm = TRUE),
+        max = max(housing$Price, na.rm = TRUE),
+        value = range(housing$Price, na.rm = TRUE)
       ),
       
       # Second numeric variable
       selectInput(
         "num2",
         "Second Numeric Variable",
-        choices = c("Price", "Rooms", "Distance", "Landsize"),
+        choices = num_vars,
         selected = "Rooms"
       ),
       
       # Second range
       sliderInput(
         "range2",
-        "Second Range",
-        min = 0,
-        max = 20,
-        value = c(0, 20)
+        "Rooms Range",
+        min = min(housing$Rooms, na.rm = TRUE),
+        max = max(housing$Rooms, na.rm = TRUE),
+        value = range(housing$Rooms, na.rm = TRUE)
       ),
       
       # Apply button
@@ -86,9 +89,10 @@ ui <- fluidPage(
              property types, and different regions."),
           
           p("Use the sidebar to select property types,
-             regions, and numeric ranges."),
+             regions, and numeric ranges.
+             Click Apply Filters to update the data."),
           
-          p("The Data Download tab will allow users to
+          p("The Data Download tab allows users to
              view and download filtered data."),
           
           p("The Data Exploration tab will allow users
@@ -107,8 +111,18 @@ ui <- fluidPage(
           
           h3("Housing Data"),
           
-          p("The filtered data table and download option
-             will be added here.")
+          p("View and download the filtered housing data."),
+          
+          # Number of rows
+          textOutput("row_count"),
+          
+          # Data table
+          DTOutput("housing_table"),
+          
+          br(),
+          
+          # Download button
+          downloadButton("download_data", "Download CSV")
         ),
         
         # Exploration tab
@@ -125,44 +139,46 @@ ui <- fluidPage(
 )
 
 # Server
-
-# Server
 server <- function(input, output, session) {
   
   # Update first slider
   observeEvent(input$num1, {
+    
     values <- housing[[input$num1]]
     values <- values[!is.na(values)]
     
     updateSliderInput(
-      session, "range1",
+      session,
+      "range1",
       label = paste(input$num1, "Range"),
       min = min(values),
       max = max(values),
-      value = c(min(values), max(values))
+      value = range(values)
     )
   })
   
   # Update second slider
   observeEvent(input$num2, {
+    
     values <- housing[[input$num2]]
     values <- values[!is.na(values)]
     
     updateSliderInput(
-      session, "range2",
+      session,
+      "range2",
       label = paste(input$num2, "Range"),
       min = min(values),
       max = max(values),
-      value = c(min(values), max(values))
+      value = range(values)
     )
   })
   
-  # Apply filters when button is clicked
+  # Filter data
   filtered_data <- eventReactive(input$apply, {
     
     data <- housing
     
-    # Filter property type
+    # Filter type
     if (input$type != "All") {
       data <- data |>
         filter(Type == input$type)
@@ -174,7 +190,7 @@ server <- function(input, output, session) {
         filter(Regionname == input$region)
     }
     
-    # Filter first numeric variable
+    # First numeric filter
     data <- data |>
       filter(
         !is.na(.data[[input$num1]]),
@@ -182,7 +198,7 @@ server <- function(input, output, session) {
         .data[[input$num1]] <= input$range1[2]
       )
     
-    # Filter second numeric variable
+    # Second numeric filter
     data <- data |>
       filter(
         !is.na(.data[[input$num2]]),
@@ -191,7 +207,37 @@ server <- function(input, output, session) {
       )
     
     data
+    
   }, ignoreNULL = FALSE)
+  
+  # Show number of rows
+  output$row_count <- renderText({
+    paste("Number of properties:", nrow(filtered_data()))
+  })
+  
+  # Show data table
+  output$housing_table <- renderDT({
+    
+    datatable(
+      filtered_data(),
+      options = list(
+        pageLength = 10,
+        scrollX = TRUE
+      )
+    )
+  })
+  
+  # Download filtered data
+  output$download_data <- downloadHandler(
+    
+    filename = function() {
+      "melbourne_housing_filtered.csv"
+    },
+    
+    content = function(file) {
+      write.csv(filtered_data(), file, row.names = FALSE)
+    }
+  )
   
 }
 
