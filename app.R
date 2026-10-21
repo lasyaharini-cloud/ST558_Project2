@@ -6,10 +6,8 @@ library(DT)
 # Load data
 housing <- readRDS("housing_clean.rds")
 
-# Numeric variables
+# Variables
 num_vars <- c("Price", "Rooms", "Distance", "Landsize")
-
-# Categorical variables
 cat_vars <- c("Type", "Regionname", "Method")
 
 # App layout
@@ -25,32 +23,25 @@ ui <- fluidPage(
       
       # Property type
       selectInput(
-        "type",
-        "Property Type",
-        choices = c("All", sort(unique(housing$Type))),
-        selected = "All"
+        "type", "Property Type",
+        choices = c("All", sort(unique(housing$Type)))
       ),
       
       # Region
       selectInput(
-        "region",
-        "Region",
-        choices = c("All", sort(unique(housing$Regionname))),
-        selected = "All"
+        "region", "Region",
+        choices = c("All", sort(unique(housing$Regionname)))
       ),
       
       # First numeric variable
       selectInput(
-        "num1",
-        "First Numeric Variable",
+        "num1", "First Numeric Variable",
         choices = num_vars,
         selected = "Price"
       ),
       
-      # First range
       sliderInput(
-        "range1",
-        "Price Range",
+        "range1", "Price Range",
         min = min(housing$Price, na.rm = TRUE),
         max = max(housing$Price, na.rm = TRUE),
         value = range(housing$Price, na.rm = TRUE)
@@ -58,22 +49,18 @@ ui <- fluidPage(
       
       # Second numeric variable
       selectInput(
-        "num2",
-        "Second Numeric Variable",
+        "num2", "Second Numeric Variable",
         choices = num_vars,
         selected = "Rooms"
       ),
       
-      # Second range
       sliderInput(
-        "range2",
-        "Rooms Range",
+        "range2", "Rooms Range",
         min = min(housing$Rooms, na.rm = TRUE),
         max = max(housing$Rooms, na.rm = TRUE),
         value = range(housing$Rooms, na.rm = TRUE)
       ),
       
-      # Apply button
       actionButton("apply", "Apply Filters")
     ),
     
@@ -88,18 +75,17 @@ ui <- fluidPage(
           h3("About This App"),
           
           p("This app explores the Melbourne Housing dataset.
-             It allows users to look at housing prices,
-             property types, and different regions."),
+             It allows users to compare housing prices,
+             property types, and regions."),
           
-          p("Use the sidebar to select property types,
-             regions, and numeric ranges.
-             Click Apply Filters to update the data."),
+          p("Use the sidebar to choose filters and click
+             Apply Filters to update the data."),
           
-          p("The Data Download tab allows users to
-             view and download filtered data."),
+          p("The Data Download tab shows the filtered data
+             and allows users to download it."),
           
           p("The Data Exploration tab allows users to
-             explore tables and graphs."),
+             explore summaries and different graphs."),
           
           tags$a(
             "Melbourne Housing Dataset on Kaggle",
@@ -116,15 +102,12 @@ ui <- fluidPage(
           
           p("View and download the filtered housing data."),
           
-          # Number of rows
           textOutput("row_count"),
           
-          # Data table
           DTOutput("housing_table"),
           
           br(),
           
-          # Download button
           downloadButton("download_data", "Download CSV")
         ),
         
@@ -136,47 +119,85 @@ ui <- fluidPage(
           
           h4("Categorical Summaries"),
           
-          # First category
           selectInput(
-            "cat1",
-            "First Categorical Variable",
+            "cat1", "First Categorical Variable",
             choices = cat_vars,
             selected = "Type"
           ),
           
-          # Second category
           selectInput(
-            "cat2",
-            "Second Categorical Variable",
+            "cat2", "Second Categorical Variable",
             choices = c("None", cat_vars),
             selected = "None"
           ),
           
-          # Categorical table
           tableOutput("cat_table"),
           
           hr(),
           
           h4("Numerical Summaries"),
           
-          # Numeric variable
           selectInput(
-            "summary_num",
-            "Numeric Variable",
+            "summary_num", "Numeric Variable",
             choices = num_vars,
             selected = "Price"
           ),
           
-          # Grouping variable
           selectInput(
-            "summary_group",
-            "Group By",
+            "summary_group", "Group By",
             choices = cat_vars,
             selected = "Type"
           ),
           
-          # Numerical table
-          tableOutput("num_table")
+          tableOutput("num_table"),
+          
+          hr(),
+          
+          h4("Graphical Summaries"),
+          
+          # Plot type
+          selectInput(
+            "plot_type", "Choose Plot",
+            choices = c(
+              "Bar Chart",
+              "Histogram",
+              "Boxplot",
+              "Scatterplot",
+              "Density Plot",
+              "Heatmap"
+            ),
+            selected = "Bar Chart"
+          ),
+          
+          # X variable
+          selectInput(
+            "plot_x", "X Variable",
+            choices = c(cat_vars, num_vars),
+            selected = "Type"
+          ),
+          
+          # Y variable
+          selectInput(
+            "plot_y", "Y Variable",
+            choices = num_vars,
+            selected = "Price"
+          ),
+          
+          # Color variable
+          selectInput(
+            "plot_color", "Color By",
+            choices = c("None", cat_vars),
+            selected = "None"
+          ),
+          
+          # Facet variable
+          selectInput(
+            "plot_facet", "Facet By",
+            choices = c("None", cat_vars),
+            selected = "None"
+          ),
+          
+          plotOutput("housing_plot", height = "450px")
         )
       )
     )
@@ -193,8 +214,7 @@ server <- function(input, output, session) {
     values <- values[!is.na(values)]
     
     updateSliderInput(
-      session,
-      "range1",
+      session, "range1",
       label = paste(input$num1, "Range"),
       min = min(values),
       max = max(values),
@@ -209,8 +229,7 @@ server <- function(input, output, session) {
     values <- values[!is.na(values)]
     
     updateSliderInput(
-      session,
-      "range2",
+      session, "range2",
       label = paste(input$num2, "Range"),
       min = min(values),
       max = max(values),
@@ -260,7 +279,7 @@ server <- function(input, output, session) {
     paste("Number of properties:", nrow(filtered_data()))
   })
   
-  # Show data table
+  # Data table
   output$housing_table <- renderDT({
     
     datatable(
@@ -290,15 +309,9 @@ server <- function(input, output, session) {
     data <- filtered_data()
     
     if (input$cat2 == "None") {
-      
-      # One-way table
       table(data[[input$cat1]])
-      
     } else {
-      
-      # Two-way table
       table(data[[input$cat1]], data[[input$cat2]])
-      
     }
     
   }, rownames = TRUE)
@@ -306,7 +319,6 @@ server <- function(input, output, session) {
   # Numerical summary
   output$num_table <- renderTable({
     
-    # Grouped summary
     filtered_data() |>
       group_by(.data[[input$summary_group]]) |>
       summarise(
@@ -315,6 +327,102 @@ server <- function(input, output, session) {
         SD = sd(.data[[input$summary_num]], na.rm = TRUE),
         .groups = "drop"
       )
+  })
+  
+  # Graphical summary
+  output$housing_plot <- renderPlot({
+    
+    data <- filtered_data()
+    
+    validate(
+      need(nrow(data) > 0, "No data available for these filters.")
+    )
+    
+    # Bar chart
+    if (input$plot_type == "Bar Chart") {
+      
+      p <- ggplot(data, aes(x = .data[[input$plot_x]])) +
+        geom_bar(fill = "steelblue")
+      
+      # Histogram
+    } else if (input$plot_type == "Histogram") {
+      
+      p <- ggplot(data, aes(x = .data[[input$plot_y]])) +
+        geom_histogram(bins = 30, fill = "steelblue")
+      
+      # Boxplot
+    } else if (input$plot_type == "Boxplot") {
+      
+      p <- ggplot(data, aes(
+        x = .data[[input$plot_x]],
+        y = .data[[input$plot_y]]
+      )) +
+        geom_boxplot(fill = "lightblue")
+      
+      # Scatterplot
+    } else if (input$plot_type == "Scatterplot") {
+      
+      p <- ggplot(data, aes(
+        x = .data[[input$plot_x]],
+        y = .data[[input$plot_y]]
+      )) +
+        geom_point(alpha = 0.4)
+      
+      # Density plot
+    } else if (input$plot_type == "Density Plot") {
+      
+      p <- ggplot(data, aes(x = .data[[input$plot_y]])) +
+        geom_density(fill = "lightblue", alpha = 0.5)
+      
+      # Heatmap
+    } else {
+      
+      avg_data <- data |>
+        group_by(Type, Regionname) |>
+        summarise(
+          AvgPrice = mean(Price, na.rm = TRUE),
+          .groups = "drop"
+        )
+      
+      p <- ggplot(avg_data, aes(
+        x = Type,
+        y = Regionname,
+        fill = AvgPrice
+      )) +
+        geom_tile(color = "white") +
+        labs(fill = "Average Price")
+    }
+    
+    # Add colors
+    if (input$plot_color != "None" &&
+        input$plot_type != "Heatmap") {
+      
+      if (input$plot_type %in% c("Bar Chart", "Histogram",
+                                 "Boxplot", "Density Plot")) {
+        
+        p <- p +
+          aes(fill = .data[[input$plot_color]])
+        
+      } else {
+        
+        p <- p +
+          aes(color = .data[[input$plot_color]])
+      }
+    }
+    
+    # Add facets
+    if (input$plot_facet != "None") {
+      p <- p +
+        facet_wrap(vars(.data[[input$plot_facet]]))
+    }
+    
+    p +
+      labs(
+        title = input$plot_type,
+        x = input$plot_x,
+        y = input$plot_y
+      ) +
+      theme_minimal()
     
   })
   
