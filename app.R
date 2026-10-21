@@ -9,6 +9,9 @@ housing <- readRDS("housing_clean.rds")
 # Numeric variables
 num_vars <- c("Price", "Rooms", "Distance", "Landsize")
 
+# Categorical variables
+cat_vars <- c("Type", "Regionname", "Method")
+
 # App layout
 ui <- fluidPage(
   
@@ -95,8 +98,8 @@ ui <- fluidPage(
           p("The Data Download tab allows users to
              view and download filtered data."),
           
-          p("The Data Exploration tab will allow users
-             to explore tables and graphs."),
+          p("The Data Exploration tab allows users to
+             explore tables and graphs."),
           
           tags$a(
             "Melbourne Housing Dataset on Kaggle",
@@ -131,7 +134,49 @@ ui <- fluidPage(
           
           h3("Explore Housing Data"),
           
-          p("Tables and plots will be added here.")
+          h4("Categorical Summaries"),
+          
+          # First category
+          selectInput(
+            "cat1",
+            "First Categorical Variable",
+            choices = cat_vars,
+            selected = "Type"
+          ),
+          
+          # Second category
+          selectInput(
+            "cat2",
+            "Second Categorical Variable",
+            choices = c("None", cat_vars),
+            selected = "None"
+          ),
+          
+          # Categorical table
+          tableOutput("cat_table"),
+          
+          hr(),
+          
+          h4("Numerical Summaries"),
+          
+          # Numeric variable
+          selectInput(
+            "summary_num",
+            "Numeric Variable",
+            choices = num_vars,
+            selected = "Price"
+          ),
+          
+          # Grouping variable
+          selectInput(
+            "summary_group",
+            "Group By",
+            choices = cat_vars,
+            selected = "Type"
+          ),
+          
+          # Numerical table
+          tableOutput("num_table")
         )
       )
     )
@@ -210,7 +255,7 @@ server <- function(input, output, session) {
     
   }, ignoreNULL = FALSE)
   
-  # Show number of rows
+  # Number of rows
   output$row_count <- renderText({
     paste("Number of properties:", nrow(filtered_data()))
   })
@@ -227,7 +272,7 @@ server <- function(input, output, session) {
     )
   })
   
-  # Download filtered data
+  # Download data
   output$download_data <- downloadHandler(
     
     filename = function() {
@@ -238,6 +283,40 @@ server <- function(input, output, session) {
       write.csv(filtered_data(), file, row.names = FALSE)
     }
   )
+  
+  # Categorical summary
+  output$cat_table <- renderTable({
+    
+    data <- filtered_data()
+    
+    if (input$cat2 == "None") {
+      
+      # One-way table
+      table(data[[input$cat1]])
+      
+    } else {
+      
+      # Two-way table
+      table(data[[input$cat1]], data[[input$cat2]])
+      
+    }
+    
+  }, rownames = TRUE)
+  
+  # Numerical summary
+  output$num_table <- renderTable({
+    
+    # Grouped summary
+    filtered_data() |>
+      group_by(.data[[input$summary_group]]) |>
+      summarise(
+        Mean = mean(.data[[input$summary_num]], na.rm = TRUE),
+        Median = median(.data[[input$summary_num]], na.rm = TRUE),
+        SD = sd(.data[[input$summary_num]], na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+  })
   
 }
 
