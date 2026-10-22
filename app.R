@@ -62,7 +62,6 @@ ui <- fluidPage(
         value = range(housing$Rooms, na.rm = TRUE)
       ),
       
-      # Apply button
       actionButton("apply", "Apply Filters")
     ),
     
@@ -172,31 +171,50 @@ ui <- fluidPage(
           ),
           
           # X variable
-          selectInput(
-            "plot_x", "X Variable",
-            choices = cat_vars,
-            selected = "Type"
+          conditionalPanel(
+            condition = "input.plot_type == 'Bar Chart' ||
+                         input.plot_type == 'Boxplot' ||
+                         input.plot_type == 'Scatterplot'",
+            
+            selectInput(
+              "plot_x", "X Variable",
+              choices = cat_vars,
+              selected = "Type"
+            )
           ),
           
           # Y variable
-          selectInput(
-            "plot_y", "Y Variable",
-            choices = num_vars,
-            selected = "Price"
+          conditionalPanel(
+            condition = "input.plot_type != 'Bar Chart' &&
+                         input.plot_type != 'Heatmap'",
+            
+            selectInput(
+              "plot_y", "Y Variable",
+              choices = num_vars,
+              selected = "Price"
+            )
           ),
           
           # Color variable
-          selectInput(
-            "plot_color", "Color By",
-            choices = c("None", cat_vars),
-            selected = "None"
+          conditionalPanel(
+            condition = "input.plot_type != 'Heatmap'",
+            
+            selectInput(
+              "plot_color", "Color By",
+              choices = c("None", cat_vars),
+              selected = "None"
+            )
           ),
           
           # Facet variable
-          selectInput(
-            "plot_facet", "Facet By",
-            choices = c("None", cat_vars),
-            selected = "None"
+          conditionalPanel(
+            condition = "input.plot_type != 'Heatmap'",
+            
+            selectInput(
+              "plot_facet", "Facet By",
+              choices = c("None", cat_vars),
+              selected = "None"
+            )
           ),
           
           # Loading spinner
@@ -247,13 +265,11 @@ server <- function(input, output, session) {
     
     data <- housing
     
-    # Filter type
     if (input$type != "All") {
       data <- data |>
         filter(Type == input$type)
     }
     
-    # Filter region
     if (input$region != "All") {
       data <- data |>
         filter(Regionname == input$region)
@@ -313,6 +329,10 @@ server <- function(input, output, session) {
     
     data <- filtered_data()
     
+    validate(
+      need(nrow(data) > 0, "No data available.")
+    )
+    
     if (input$cat2 == "None") {
       table(data[[input$cat1]])
     } else {
@@ -324,7 +344,13 @@ server <- function(input, output, session) {
   # Numerical summary
   output$num_table <- renderTable({
     
-    filtered_data() |>
+    data <- filtered_data()
+    
+    validate(
+      need(nrow(data) > 0, "No data available.")
+    )
+    
+    data |>
       group_by(.data[[input$summary_group]]) |>
       summarise(
         Mean = mean(.data[[input$summary_num]], na.rm = TRUE),
@@ -334,28 +360,25 @@ server <- function(input, output, session) {
       )
   })
   
-  # Update plot variables
+  # Update X variable choices
   observeEvent(input$plot_type, {
     
     if (input$plot_type == "Scatterplot") {
-      choices <- num_vars
-      selected <- "Rooms"
       
-    } else if (input$plot_type %in%
-               c("Bar Chart", "Boxplot")) {
-      choices <- cat_vars
-      selected <- "Type"
+      updateSelectInput(
+        session, "plot_x",
+        choices = num_vars,
+        selected = "Rooms"
+      )
       
     } else {
-      choices <- cat_vars
-      selected <- "Type"
+      
+      updateSelectInput(
+        session, "plot_x",
+        choices = cat_vars,
+        selected = "Type"
+      )
     }
-    
-    updateSelectInput(
-      session, "plot_x",
-      choices = choices,
-      selected = selected
-    )
   })
   
   # Graphical summary
@@ -364,44 +387,101 @@ server <- function(input, output, session) {
     data <- filtered_data()
     
     validate(
-      need(nrow(data) > 0, "No data available for these filters.")
+      need(nrow(data) > 0,
+           "No data available for these filters.")
     )
     
     # Bar chart
     if (input$plot_type == "Bar Chart") {
       
-      p <- ggplot(data, aes(x = .data[[input$plot_x]])) +
+      p <- ggplot(
+        data,
+        aes(x = .data[[input$plot_x]])
+      ) +
         geom_bar(fill = "steelblue")
       
       # Histogram
     } else if (input$plot_type == "Histogram") {
       
-      p <- ggplot(data, aes(x = .data[[input$plot_y]])) +
-        geom_histogram(bins = 30, fill = "steelblue", na.rm = TRUE)
+      data <- data |>
+        filter(!is.na(.data[[input$plot_y]]))
+      
+      validate(
+        need(nrow(data) > 0, "No numeric data available.")
+      )
+      
+      p <- ggplot(
+        data,
+        aes(x = .data[[input$plot_y]])
+      ) +
+        geom_histogram(
+          bins = 30,
+          fill = "steelblue"
+        )
       
       # Boxplot
     } else if (input$plot_type == "Boxplot") {
       
-      p <- ggplot(data, aes(
-        x = .data[[input$plot_x]],
-        y = .data[[input$plot_y]]
-      )) +
-        geom_boxplot(fill = "lightblue", na.rm = TRUE)
+      data <- data |>
+        filter(!is.na(.data[[input$plot_y]]))
+      
+      validate(
+        need(nrow(data) > 0, "No numeric data available.")
+      )
+      
+      p <- ggplot(
+        data,
+        aes(
+          x = .data[[input$plot_x]],
+          y = .data[[input$plot_y]]
+        )
+      ) +
+        geom_boxplot(fill = "lightblue")
       
       # Scatterplot
     } else if (input$plot_type == "Scatterplot") {
       
-      p <- ggplot(data, aes(
-        x = .data[[input$plot_x]],
-        y = .data[[input$plot_y]]
-      )) +
-        geom_point(alpha = 0.4, na.rm = TRUE)
+      data <- data |>
+        filter(
+          !is.na(.data[[input$plot_x]]),
+          !is.na(.data[[input$plot_y]])
+        )
+      
+      validate(
+        need(nrow(data) > 0, "No numeric data available.")
+      )
+      
+      p <- ggplot(
+        data,
+        aes(
+          x = .data[[input$plot_x]],
+          y = .data[[input$plot_y]]
+        )
+      ) +
+        geom_point(alpha = 0.4)
       
       # Density plot
     } else if (input$plot_type == "Density Plot") {
       
-      p <- ggplot(data, aes(x = .data[[input$plot_y]])) +
-        geom_density(fill = "lightblue", alpha = 0.5, na.rm = TRUE)
+      data <- data |>
+        filter(!is.na(.data[[input$plot_y]]))
+      
+      validate(
+        need(
+          nrow(data) >= 2 &&
+            length(unique(data[[input$plot_y]])) >= 2,
+          "Not enough numeric data for a density plot."
+        )
+      )
+      
+      p <- ggplot(
+        data,
+        aes(x = .data[[input$plot_y]])
+      ) +
+        geom_density(
+          fill = "lightblue",
+          alpha = 0.5
+        )
       
       # Heatmap
     } else {
@@ -416,21 +496,30 @@ server <- function(input, output, session) {
         )
       
       validate(
-        need(nrow(avg_data) > 0, "No price data available.")
+        need(nrow(avg_data) > 0,
+             "No price data available.")
       )
       
-      p <- ggplot(avg_data, aes(
-        x = Type,
-        y = Regionname,
-        fill = AvgPrice
-      )) +
+      p <- ggplot(
+        avg_data,
+        aes(
+          x = Type,
+          y = Regionname,
+          fill = AvgPrice
+        )
+      ) +
         geom_tile(color = "white") +
-        labs(fill = "Average Price")
+        labs(
+          title = "Average Housing Price by Type and Region",
+          x = "Property Type",
+          y = "Region",
+          fill = "Average Price"
+        )
     }
     
     # Add colors
-    if (input$plot_color != "None" &&
-        input$plot_type != "Heatmap") {
+    if (input$plot_type != "Heatmap" &&
+        input$plot_color != "None") {
       
       if (input$plot_type %in%
           c("Bar Chart", "Histogram",
@@ -447,28 +536,41 @@ server <- function(input, output, session) {
     }
     
     # Add facets
-    if (input$plot_facet != "None") {
+    if (input$plot_type != "Heatmap" &&
+        input$plot_facet != "None") {
+      
       p <- p +
         facet_wrap(vars(.data[[input$plot_facet]]))
     }
     
-    p +
-      labs(
-        title = input$plot_type,
-        x = if (input$plot_type %in%
-                c("Histogram", "Density Plot")) {
-          input$plot_y
-        } else {
-          input$plot_x
-        },
-        y = if (input$plot_type %in%
-                c("Bar Chart", "Histogram", "Density Plot")) {
-          "Count"
-        } else {
-          input$plot_y
-        }
-      ) +
-      theme_minimal()
+    # Plot labels
+    if (input$plot_type != "Heatmap") {
+      
+      x_label <- if (input$plot_type %in%
+                     c("Histogram", "Density Plot")) {
+        input$plot_y
+      } else {
+        input$plot_x
+      }
+      
+      y_label <- if (input$plot_type == "Density Plot") {
+        "Density"
+      } else if (input$plot_type %in%
+                 c("Bar Chart", "Histogram")) {
+        "Count"
+      } else {
+        input$plot_y
+      }
+      
+      p <- p +
+        labs(
+          title = input$plot_type,
+          x = x_label,
+          y = y_label
+        )
+    }
+    
+    p + theme_minimal()
     
   })
   
