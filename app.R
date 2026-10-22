@@ -2,6 +2,7 @@
 library(shiny)
 library(tidyverse)
 library(DT)
+library(shinycssloaders)
 
 # Load data
 housing <- readRDS("housing_clean.rds")
@@ -61,6 +62,7 @@ ui <- fluidPage(
         value = range(housing$Rooms, na.rm = TRUE)
       ),
       
+      # Apply button
       actionButton("apply", "Apply Filters")
     ),
     
@@ -172,7 +174,7 @@ ui <- fluidPage(
           # X variable
           selectInput(
             "plot_x", "X Variable",
-            choices = c(cat_vars, num_vars),
+            choices = cat_vars,
             selected = "Type"
           ),
           
@@ -197,7 +199,10 @@ ui <- fluidPage(
             selected = "None"
           ),
           
-          plotOutput("housing_plot", height = "450px")
+          # Loading spinner
+          withSpinner(
+            plotOutput("housing_plot", height = "450px")
+          )
         )
       )
     )
@@ -329,6 +334,30 @@ server <- function(input, output, session) {
       )
   })
   
+  # Update plot variables
+  observeEvent(input$plot_type, {
+    
+    if (input$plot_type == "Scatterplot") {
+      choices <- num_vars
+      selected <- "Rooms"
+      
+    } else if (input$plot_type %in%
+               c("Bar Chart", "Boxplot")) {
+      choices <- cat_vars
+      selected <- "Type"
+      
+    } else {
+      choices <- cat_vars
+      selected <- "Type"
+    }
+    
+    updateSelectInput(
+      session, "plot_x",
+      choices = choices,
+      selected = selected
+    )
+  })
+  
   # Graphical summary
   output$housing_plot <- renderPlot({
     
@@ -348,7 +377,7 @@ server <- function(input, output, session) {
     } else if (input$plot_type == "Histogram") {
       
       p <- ggplot(data, aes(x = .data[[input$plot_y]])) +
-        geom_histogram(bins = 30, fill = "steelblue")
+        geom_histogram(bins = 30, fill = "steelblue", na.rm = TRUE)
       
       # Boxplot
     } else if (input$plot_type == "Boxplot") {
@@ -357,7 +386,7 @@ server <- function(input, output, session) {
         x = .data[[input$plot_x]],
         y = .data[[input$plot_y]]
       )) +
-        geom_boxplot(fill = "lightblue")
+        geom_boxplot(fill = "lightblue", na.rm = TRUE)
       
       # Scatterplot
     } else if (input$plot_type == "Scatterplot") {
@@ -366,23 +395,29 @@ server <- function(input, output, session) {
         x = .data[[input$plot_x]],
         y = .data[[input$plot_y]]
       )) +
-        geom_point(alpha = 0.4)
+        geom_point(alpha = 0.4, na.rm = TRUE)
       
       # Density plot
     } else if (input$plot_type == "Density Plot") {
       
       p <- ggplot(data, aes(x = .data[[input$plot_y]])) +
-        geom_density(fill = "lightblue", alpha = 0.5)
+        geom_density(fill = "lightblue", alpha = 0.5, na.rm = TRUE)
       
       # Heatmap
     } else {
       
+      # Average price by type and region
       avg_data <- data |>
+        filter(!is.na(Price)) |>
         group_by(Type, Regionname) |>
         summarise(
-          AvgPrice = mean(Price, na.rm = TRUE),
+          AvgPrice = mean(Price),
           .groups = "drop"
         )
+      
+      validate(
+        need(nrow(avg_data) > 0, "No price data available.")
+      )
       
       p <- ggplot(avg_data, aes(
         x = Type,
@@ -397,8 +432,9 @@ server <- function(input, output, session) {
     if (input$plot_color != "None" &&
         input$plot_type != "Heatmap") {
       
-      if (input$plot_type %in% c("Bar Chart", "Histogram",
-                                 "Boxplot", "Density Plot")) {
+      if (input$plot_type %in%
+          c("Bar Chart", "Histogram",
+            "Boxplot", "Density Plot")) {
         
         p <- p +
           aes(fill = .data[[input$plot_color]])
@@ -419,8 +455,18 @@ server <- function(input, output, session) {
     p +
       labs(
         title = input$plot_type,
-        x = input$plot_x,
-        y = input$plot_y
+        x = if (input$plot_type %in%
+                c("Histogram", "Density Plot")) {
+          input$plot_y
+        } else {
+          input$plot_x
+        },
+        y = if (input$plot_type %in%
+                c("Bar Chart", "Histogram", "Density Plot")) {
+          "Count"
+        } else {
+          input$plot_y
+        }
       ) +
       theme_minimal()
     
