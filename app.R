@@ -73,25 +73,59 @@ ui <- fluidPage(
         tabPanel(
           "About",
           
-          h3("About This App"),
+          h3("Melbourne Housing Explorer"),
           
-          p("This app explores the Melbourne Housing dataset.
-             It allows users to compare housing prices,
-             property types, and regions."),
+          p("Welcome to the Melbourne Housing Explorer!
+             This app helps users explore housing data
+             from Melbourne, Australia."),
           
-          p("Use the sidebar to choose filters and click
-             Apply Filters to update the data."),
+          # Housing image
+          tags$img(
+            src = "melbourne_house.jpg",
+            width = "100%",
+            style = "max-width: 650px; border-radius: 8px;"
+          ),
           
-          p("The Data Download tab shows the filtered data
-             and allows users to download it."),
+          br(),
+          br(),
           
-          p("The Data Exploration tab allows users to
-             explore summaries and different graphs."),
+          h4("About the Dataset"),
+          
+          p("The Melbourne Housing dataset contains
+             information about properties in Melbourne,
+             including prices, number of rooms,
+             property types, land sizes, and locations."),
+          
+          p("The dataset was obtained from Kaggle."),
           
           tags$a(
-            "Melbourne Housing Dataset on Kaggle",
+            "Melbourne Housing Dataset - Kaggle",
             href = "https://www.kaggle.com/datasets/anthonypino/melbourne-housing-market",
             target = "_blank"
+          ),
+          
+          hr(),
+          
+          h4("How to Use the App"),
+          
+          tags$ol(
+            tags$li("Use the sidebar to select a property type and region."),
+            tags$li("Choose two numeric variables and adjust their ranges."),
+            tags$li("Click Apply Filters to update the data."),
+            tags$li("Use the Data Download tab to view and download the filtered data."),
+            tags$li("Use the Data Exploration tab to explore tables and graphs.")
+          ),
+          
+          hr(),
+          
+          h4("App Features"),
+          
+          tags$ul(
+            tags$li("Filter properties by type, region, and numeric ranges."),
+            tags$li("View and download housing data as a CSV file."),
+            tags$li("Explore categorical and numerical summaries."),
+            tags$li("Create six different types of graphs."),
+            tags$li("Customize graph variables, colors, and faceting.")
           )
         ),
         
