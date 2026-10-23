@@ -161,6 +161,15 @@ ui <- fluidPage(
             width = "100%",
             style = "max-width: 650px; border-radius: 8px;"
           ),
+          p(
+            "Image: Taylors Lakes, Melbourne. Photo by ",
+            tags$a(
+              "Graeme Bartlett",
+              href = "https://commons.wikimedia.org/wiki/File:Taylors_Lakes_aerial.jpg",
+              target = "_blank"
+            ),
+            " (CC BY-SA 3.0)."
+          ),
           br(),
           br(),
           h4("About the Dataset"),
