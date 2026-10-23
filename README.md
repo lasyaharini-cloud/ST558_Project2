@@ -3,10 +3,10 @@
 ## About the Project
 
 This project uses the Melbourne Housing dataset to explore housing prices and property information in Melbourne, Australia. It includes an interactive R Shiny app and a separate exploratory analysis using Quarto.
-
+Website URL: https://lasyaharini.shinyapps.io/ST558_Project2/ 
 ## Dataset
 
-The dataset contains information about property prices, rooms, property types, regions, land sizes, and distances.
+The dataset contains information about property prices, rooms, property types, regions, land sizes and distances.
 
 **Source:** [Melbourne Housing Dataset – Kaggle](https://www.kaggle.com/datasets/anthonypino/melbourne-housing-market)
 
@@ -22,7 +22,7 @@ Users can filter the data by property type, region, and two numerical ranges. Th
 
 ## Exploratory Analysis
 
-The Quarto analysis includes frequency tables, grouped numerical summaries, and seven graphs exploring relationships between housing variables.
+The Quarto analysis includes frequency tables, grouped numerical summaries and seven graphs exploring relationships between housing variables.
 
 ## Project Files
 
@@ -35,7 +35,7 @@ The Quarto analysis includes frequency tables, grouped numerical summaries, and 
 
 ## Running the App
 
-Open `app.R` in RStudio and click **Run App**. The required packages are `shiny`, `tidyverse`, `DT`, and `shinycssloaders`.
+Open `app.R` in RStudio and click **Run App**. The required packages are `shiny`, `tidyverse`, `DT` and `shinycssloaders`.
 
 ## Links
 
