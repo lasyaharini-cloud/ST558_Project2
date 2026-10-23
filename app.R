@@ -88,7 +88,6 @@ ui <- fluidPage(
       }
     "))
   ),
-  
   titlePanel("Melbourne Housing Explorer"),
   sidebarLayout(
     sidebarPanel(
@@ -136,14 +135,12 @@ ui <- fluidPage(
         max = rooms_range[2],
         value = rooms_range
       ),
-      
       actionButton(
         "apply", "Apply Filters",
         class = "btn-primary"
       ),
       br(),
       br(),
-      
       tags$small(
         "Click Apply Filters to update the data."
       )
@@ -153,7 +150,6 @@ ui <- fluidPage(
         # About tab
         tabPanel(
           "About",
-          
           h3("Melbourne Housing Explorer"),
           p("Welcome to the Melbourne Housing Explorer!
              This app helps users explore housing data
@@ -167,23 +163,19 @@ ui <- fluidPage(
           ),
           br(),
           br(),
-          
           h4("About the Dataset"),
           p("The Melbourne Housing dataset contains
              information about properties in Melbourne,
              including prices, number of rooms,
              property types, land sizes, and locations."),
-          
           p("The dataset was obtained from Kaggle."),
           tags$a(
             "Melbourne Housing Dataset - Kaggle",
             href = "https://www.kaggle.com/datasets/anthonypino/melbourne-housing-market",
             target = "_blank"
           ),
-          
           hr(),
           h4("How to Use the App"),
-          
           tags$ol(
             tags$li(
               "Use the sidebar to select a property type and region."
@@ -202,7 +194,6 @@ ui <- fluidPage(
             )
           ),
           hr(),
-          
           h4("App Features"),
           tags$ul(
             tags$li(
@@ -221,20 +212,16 @@ ui <- fluidPage(
               "Customize graph variables, colors, and faceting."
             )
           ),
-          
           p("Note: The dataset contains historical property
              sales, not homes currently listed for sale.")
         ),
         # Download tab
         tabPanel(
           "Data Download",
-          
           h3("Housing Data"),
           p("View and download the filtered housing data."),
-          
           textOutput("row_count"),
           DT::dataTableOutput("housing_table"),
-          
           br(),
           downloadButton(
             "download_data", "Download CSV"
@@ -245,13 +232,10 @@ ui <- fluidPage(
         tabPanel(
           "Data Exploration",
           h3("Explore Housing Data"),
-          
           h4("Housing Summary"),
           textOutput("housing_summary"),
-          
           hr(),
           h4("Categorical Summaries"),
-          
           selectInput(
             "cat1", "First Categorical Variable",
             choices = cat_vars,
@@ -262,14 +246,11 @@ ui <- fluidPage(
             choices = c("None" = "None", cat_vars),
             selected = "None"
           ),
-          
           p("Choose None for a one-way table or
              another variable for a two-way table."),
           tableOutput("cat_table"),
-          
           hr(),
           h4("Numerical Summaries"),
-          
           selectInput(
             "summary_num", "Numeric Variable",
             choices = num_vars,
@@ -280,10 +261,8 @@ ui <- fluidPage(
             choices = cat_vars,
             selected = "Type"
           ),
-          
           tableOutput("num_table"),
           hr(),
-          
           h4("Graphical Summaries"),
           # Plot type
           selectInput(
@@ -361,7 +340,6 @@ ui <- fluidPage(
               selected = "None"
             )
           ),
-          
           p("Color By compares groups using different colors.
              Facet By creates separate graphs for each group."),
           # Loading spinner
@@ -568,7 +546,6 @@ server <- function(input, output, session) {
     }
     
     result
-    
   }, rownames = FALSE)
   
   # Numerical summary
@@ -625,7 +602,6 @@ server <- function(input, output, session) {
             aes(fill = .data[[x]]),
             color = "white"
           )
-        
       } else {
         p <- p +
           geom_bar(
@@ -665,7 +641,6 @@ server <- function(input, output, session) {
             fill = "#4e9cc9",
             color = "white"
           )
-        
       } else {
         p <- p +
           geom_histogram(
@@ -708,7 +683,6 @@ server <- function(input, output, session) {
           geom_boxplot(
             aes(fill = .data[[x]])
           )
-        
       } else {
         p <- p +
           geom_boxplot(
@@ -761,7 +735,6 @@ server <- function(input, output, session) {
             color = "#9370db",
             alpha = 0.4
           )
-        
       } else {
         p <- p +
           geom_point(
@@ -805,7 +778,6 @@ server <- function(input, output, session) {
             fill = "#f4a261",
             alpha = 0.6
           )
-        
       } else {
         p <- p +
           geom_density(
