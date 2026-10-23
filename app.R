@@ -1,4 +1,3 @@
-
 library(shiny)
 library(tidyverse)
 library(DT)
@@ -6,7 +5,6 @@ library(shinycssloaders)
 
 # Load data
 housing <- readRDS("housing_clean.rds")
-
 # Use full names for property types
 housing <- housing |>
   mutate(
@@ -34,7 +32,6 @@ housing <- housing |>
       TRUE ~ as.character(Method)
     )
   )
-
 # Numeric variables
 num_vars <- c(
   "Price" = "Price",
@@ -55,7 +52,6 @@ cat_vars <- c(
   "Sale Method" = "Method",
   "Region" = "Regionname"
 )
-
 # Get the full name of a variable
 get_label <- function(variable) {
   labels <- c(num_vars, cat_vars)
@@ -65,10 +61,8 @@ get_label <- function(variable) {
 # Starting ranges
 price_range <- range(housing$Price, na.rm = TRUE)
 rooms_range <- range(housing$Rooms, na.rm = TRUE)
-
 # App layout
 ui <- fluidPage(
-  
   # Basic colors
   tags$head(
     tags$style(HTML("
@@ -80,7 +74,6 @@ ui <- fluidPage(
         background-color: white;
         border-radius: 8px;
       }
-
       h2, h3, h4 {
         color: #284d72;
       }
@@ -89,7 +82,6 @@ ui <- fluidPage(
         background-color: #327ba8;
         border-color: #327ba8;
       }
-
       .nav-tabs > li.active > a {
         color: #284d72;
         font-weight: bold;
@@ -98,11 +90,8 @@ ui <- fluidPage(
   ),
   
   titlePanel("Melbourne Housing Explorer"),
-  
   sidebarLayout(
-    
     sidebarPanel(
-      
       h4("Filters"),
       
       # Property type
@@ -113,7 +102,6 @@ ui <- fluidPage(
           sort(unique(na.omit(housing$Type)))
         )
       ),
-      
       # Region
       selectInput(
         "region", "Region",
@@ -129,7 +117,6 @@ ui <- fluidPage(
         choices = num_vars,
         selected = "Price"
       ),
-      
       sliderInput(
         "range1", "Price Range",
         min = price_range[1],
@@ -143,7 +130,6 @@ ui <- fluidPage(
         choices = num_vars,
         selected = "Rooms"
       ),
-      
       sliderInput(
         "range2", "Rooms Range",
         min = rooms_range[1],
@@ -155,7 +141,6 @@ ui <- fluidPage(
         "apply", "Apply Filters",
         class = "btn-primary"
       ),
-      
       br(),
       br(),
       
@@ -163,17 +148,13 @@ ui <- fluidPage(
         "Click Apply Filters to update the data."
       )
     ),
-    
     mainPanel(
-      
       tabsetPanel(
-        
         # About tab
         tabPanel(
           "About",
           
           h3("Melbourne Housing Explorer"),
-          
           p("Welcome to the Melbourne Housing Explorer!
              This app helps users explore housing data
              from Melbourne, Australia."),
@@ -184,19 +165,16 @@ ui <- fluidPage(
             width = "100%",
             style = "max-width: 650px; border-radius: 8px;"
           ),
-          
           br(),
           br(),
           
           h4("About the Dataset"),
-          
           p("The Melbourne Housing dataset contains
              information about properties in Melbourne,
              including prices, number of rooms,
              property types, land sizes, and locations."),
           
           p("The dataset was obtained from Kaggle."),
-          
           tags$a(
             "Melbourne Housing Dataset - Kaggle",
             href = "https://www.kaggle.com/datasets/anthonypino/melbourne-housing-market",
@@ -204,7 +182,6 @@ ui <- fluidPage(
           ),
           
           hr(),
-          
           h4("How to Use the App"),
           
           tags$ol(
@@ -224,11 +201,9 @@ ui <- fluidPage(
               "Use the Data Exploration tab to explore tables and graphs."
             )
           ),
-          
           hr(),
           
           h4("App Features"),
-          
           tags$ul(
             tags$li(
               "Filter properties by type, region, and numeric ranges."
@@ -250,21 +225,17 @@ ui <- fluidPage(
           p("Note: The dataset contains historical property
              sales, not homes currently listed for sale.")
         ),
-        
         # Download tab
         tabPanel(
           "Data Download",
           
           h3("Housing Data"),
-          
           p("View and download the filtered housing data."),
           
           textOutput("row_count"),
-          
-          DTOutput("housing_table"),
+          DT::dataTableOutput("housing_table"),
           
           br(),
-          
           downloadButton(
             "download_data", "Download CSV"
           )
@@ -273,15 +244,12 @@ ui <- fluidPage(
         # Exploration tab
         tabPanel(
           "Data Exploration",
-          
           h3("Explore Housing Data"),
           
           h4("Housing Summary"),
-          
           textOutput("housing_summary"),
           
           hr(),
-          
           h4("Categorical Summaries"),
           
           selectInput(
@@ -289,7 +257,6 @@ ui <- fluidPage(
             choices = cat_vars,
             selected = "Type"
           ),
-          
           selectInput(
             "cat2", "Second Categorical Variable",
             choices = c("None" = "None", cat_vars),
@@ -298,11 +265,9 @@ ui <- fluidPage(
           
           p("Choose None for a one-way table or
              another variable for a two-way table."),
-          
           tableOutput("cat_table"),
           
           hr(),
-          
           h4("Numerical Summaries"),
           
           selectInput(
@@ -310,7 +275,6 @@ ui <- fluidPage(
             choices = num_vars,
             selected = "Price"
           ),
-          
           selectInput(
             "summary_group", "Group By",
             choices = cat_vars,
@@ -318,11 +282,9 @@ ui <- fluidPage(
           ),
           
           tableOutput("num_table"),
-          
           hr(),
           
           h4("Graphical Summaries"),
-          
           # Plot type
           selectInput(
             "plot_type", "Choose Plot",
@@ -341,7 +303,6 @@ ui <- fluidPage(
           conditionalPanel(
             condition = "input.plot_type == 'Bar Chart' ||
                          input.plot_type == 'Boxplot'",
-            
             selectInput(
               "plot_x", "X Variable",
               choices = cat_vars,
@@ -352,7 +313,6 @@ ui <- fluidPage(
           # X variable for scatterplots
           conditionalPanel(
             condition = "input.plot_type == 'Scatterplot'",
-            
             selectInput(
               "scatter_x", "X Variable",
               choices = num_vars,
@@ -364,7 +324,6 @@ ui <- fluidPage(
           conditionalPanel(
             condition = "input.plot_type == 'Histogram' ||
                          input.plot_type == 'Density Plot'",
-            
             selectInput(
               "plot_num", "Numeric Variable",
               choices = num_vars,
@@ -376,7 +335,6 @@ ui <- fluidPage(
           conditionalPanel(
             condition = "input.plot_type == 'Boxplot' ||
                          input.plot_type == 'Scatterplot'",
-            
             selectInput(
               "plot_y", "Y Variable",
               choices = num_vars,
@@ -387,7 +345,6 @@ ui <- fluidPage(
           # Color variable
           conditionalPanel(
             condition = "input.plot_type != 'Heatmap'",
-            
             selectInput(
               "plot_color", "Color By",
               choices = c("None" = "None", cat_vars),
@@ -398,7 +355,6 @@ ui <- fluidPage(
           # Facet variable
           conditionalPanel(
             condition = "input.plot_type != 'Heatmap'",
-            
             selectInput(
               "plot_facet", "Facet By",
               choices = c("None" = "None", cat_vars),
@@ -408,7 +364,6 @@ ui <- fluidPage(
           
           p("Color By compares groups using different colors.
              Facet By creates separate graphs for each group."),
-          
           # Loading spinner
           withSpinner(
             plotOutput("housing_plot", height = "450px")
@@ -421,13 +376,10 @@ ui <- fluidPage(
 
 # Server
 server <- function(input, output, session) {
-  
   # Update first slider
   observeEvent(input$num1, {
-    
     values <- housing[[input$num1]]
     values <- values[!is.na(values)]
-    
     updateSliderInput(
       session, "range1",
       label = paste(get_label(input$num1), "Range"),
@@ -439,10 +391,8 @@ server <- function(input, output, session) {
   
   # Update second slider
   observeEvent(input$num2, {
-    
     values <- housing[[input$num2]]
     values <- values[!is.na(values)]
-    
     updateSliderInput(
       session, "range2",
       label = paste(get_label(input$num2), "Range"),
@@ -454,9 +404,7 @@ server <- function(input, output, session) {
   
   # Do not allow the same categorical variable twice
   observeEvent(input$cat1, {
-    
     choices2 <- cat_vars[cat_vars != input$cat1]
-    
     updateSelectInput(
       session,
       "cat2",
@@ -465,11 +413,15 @@ server <- function(input, output, session) {
     )
   })
   
+  # Store filtered data until the button is clicked
+  housing_values <- reactiveValues(data = housing)
+  filtered_data <- reactive({
+    housing_values$data
+  })
+  
   # Filter data
-  filtered_data <- eventReactive(input$apply, {
-    
+  observeEvent(input$apply, {
     data <- housing
-    
     if (input$type != "All") {
       data <- data |>
         filter(Type == input$type)
@@ -479,13 +431,11 @@ server <- function(input, output, session) {
       data <- data |>
         filter(Regionname == input$region)
     }
-    
     # First numeric filter
     full1 <- range(housing[[input$num1]], na.rm = TRUE)
     
     if (input$range1[1] > full1[1] ||
         input$range1[2] < full1[2]) {
-      
       data <- data |>
         filter(
           !is.na(.data[[input$num1]]),
@@ -493,13 +443,11 @@ server <- function(input, output, session) {
           .data[[input$num1]] <= input$range1[2]
         )
     }
-    
     # Second numeric filter
     full2 <- range(housing[[input$num2]], na.rm = TRUE)
     
     if (input$range2[1] > full2[1] ||
         input$range2[2] < full2[2]) {
-      
       data <- data |>
         filter(
           !is.na(.data[[input$num2]]),
@@ -507,23 +455,18 @@ server <- function(input, output, session) {
           .data[[input$num2]] <= input$range2[2]
         )
     }
-    
-    data
-    
-  }, ignoreNULL = FALSE)
+    housing_values$data <- data
+  })
   
   # Housing summary
   output$housing_summary <- renderText({
-    
     data <- filtered_data()
-    
     if (nrow(data) == 0) {
       return("No properties match the selected filters.")
     }
     
     median_price <- median(data$Price, na.rm = TRUE)
     average_distance <- mean(data$Distance, na.rm = TRUE)
-    
     price_text <- if (is.finite(median_price)) {
       paste0(
         "$",
@@ -538,7 +481,6 @@ server <- function(input, output, session) {
     } else {
       "Not available"
     }
-    
     paste(
       "Matching Properties:",
       format(nrow(data), big.mark = ","),
@@ -551,17 +493,14 @@ server <- function(input, output, session) {
   
   # Number of rows
   output$row_count <- renderText({
-    
     paste(
       "Number of properties:",
       nrow(filtered_data())
     )
   })
-  
   # Data table
-  output$housing_table <- renderDT({
-    
-    datatable(
+  output$housing_table <- DT::renderDataTable({
+    DT::datatable(
       filtered_data(),
       options = list(
         pageLength = 10,
@@ -573,11 +512,9 @@ server <- function(input, output, session) {
   
   # Download data
   output$download_data <- downloadHandler(
-    
     filename = function() {
       "melbourne_housing_filtered.csv"
     },
-    
     content = function(file) {
       write.csv(
         filtered_data(),
@@ -589,20 +526,16 @@ server <- function(input, output, session) {
   
   # Categorical summary
   output$cat_table <- renderTable({
-    
     data <- filtered_data()
-    
     validate(
       need(nrow(data) > 0, "No data available.")
     )
     
     # One-way table
     if (input$cat2 == "None") {
-      
       result <- as.data.frame(
         table(data[[input$cat1]])
       )
-      
       names(result) <- c(
         get_label(input$cat1),
         "Count"
@@ -610,14 +543,12 @@ server <- function(input, output, session) {
       
       # Two-way table
     } else {
-      
       validate(
         need(
           input$cat1 != input$cat2,
           "Please choose two different variables."
         )
       )
-      
       result <- as.data.frame(
         table(
           data[[input$cat1]],
@@ -642,7 +573,6 @@ server <- function(input, output, session) {
   
   # Numerical summary
   output$num_table <- renderTable({
-    
     data <- filtered_data()
     
     validate(
@@ -667,7 +597,6 @@ server <- function(input, output, session) {
   
   # Graphical summary
   output$housing_plot <- renderPlot({
-    
     data <- filtered_data()
     
     validate(
@@ -683,7 +612,6 @@ server <- function(input, output, session) {
     
     # Bar chart
     if (plot_type == "Bar Chart") {
-      
       x <- input$plot_x
       
       p <- ggplot(
@@ -692,7 +620,6 @@ server <- function(input, output, session) {
       )
       
       if (color == "None" || color == x) {
-        
         p <- p +
           geom_bar(
             aes(fill = .data[[x]]),
@@ -700,7 +627,6 @@ server <- function(input, output, session) {
           )
         
       } else {
-        
         p <- p +
           geom_bar(
             aes(fill = .data[[color]]),
@@ -718,7 +644,6 @@ server <- function(input, output, session) {
       
       # Histogram
     } else if (plot_type == "Histogram") {
-      
       x <- input$plot_num
       
       data <- data |>
@@ -734,7 +659,6 @@ server <- function(input, output, session) {
       )
       
       if (color == "None") {
-        
         p <- p +
           geom_histogram(
             bins = 30,
@@ -743,7 +667,6 @@ server <- function(input, output, session) {
           )
         
       } else {
-        
         p <- p +
           geom_histogram(
             aes(fill = .data[[color]]),
@@ -762,7 +685,6 @@ server <- function(input, output, session) {
       
       # Boxplot
     } else if (plot_type == "Boxplot") {
-      
       x <- input$plot_x
       y <- input$plot_y
       
@@ -782,14 +704,12 @@ server <- function(input, output, session) {
       )
       
       if (color == "None" || color == x) {
-        
         p <- p +
           geom_boxplot(
             aes(fill = .data[[x]])
           )
         
       } else {
-        
         p <- p +
           geom_boxplot(
             aes(
@@ -814,7 +734,6 @@ server <- function(input, output, session) {
       
       # Scatterplot
     } else if (plot_type == "Scatterplot") {
-      
       x <- input$scatter_x
       y <- input$plot_y
       
@@ -837,7 +756,6 @@ server <- function(input, output, session) {
       )
       
       if (color == "None") {
-        
         p <- p +
           geom_point(
             color = "#9370db",
@@ -845,7 +763,6 @@ server <- function(input, output, session) {
           )
         
       } else {
-        
         p <- p +
           geom_point(
             aes(color = .data[[color]]),
@@ -864,7 +781,6 @@ server <- function(input, output, session) {
       
       # Density plot
     } else if (plot_type == "Density Plot") {
-      
       x <- input$plot_num
       
       data <- data |>
@@ -884,7 +800,6 @@ server <- function(input, output, session) {
       )
       
       if (color == "None") {
-        
         p <- p +
           geom_density(
             fill = "#f4a261",
@@ -892,7 +807,6 @@ server <- function(input, output, session) {
           )
         
       } else {
-        
         p <- p +
           geom_density(
             aes(
@@ -913,7 +827,6 @@ server <- function(input, output, session) {
       
       # Heatmap
     } else {
-      
       avg_data <- data |>
         filter(
           !is.na(Price),
@@ -957,9 +870,7 @@ server <- function(input, output, session) {
     
     # Add facets and categorical colors
     if (plot_type != "Heatmap") {
-      
       if (facet != "None") {
-        
         p <- p +
           facet_wrap(
             vars(.data[[facet]])
@@ -982,9 +893,7 @@ server <- function(input, output, session) {
         legend.position = "bottom",
         panel.grid.minor = element_blank()
       )
-    
   })
-  
 }
 
 # Run app
